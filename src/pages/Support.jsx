@@ -1,5 +1,5 @@
 import { useChat } from '../contexts/ChatContext';
-import ChatBot from '../components/ChatBot';
+import { ChatSupport } from '../components/ChatSupport/ChatSupport';
 
 function Support() {
   const { openChat } = useChat();
@@ -154,7 +154,7 @@ function Support() {
           </div>
         </div>
       </div>
-      <ChatBot />
+      <ChatSupport />
     </div>
   )
 }

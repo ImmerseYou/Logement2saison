@@ -19,9 +19,6 @@ import 'react-date-range/dist/theme/default.css'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { Icon } from 'leaflet'
-import markerIcon from '../assets/marker-icon.png'
-import markerShadow from '../assets/marker-shadow.png'
-import userLocationIcon from '../assets/user-location.png'
 import { getCurrentPosition, reverseGeocode, findNearbyProperties, geocodeAddress } from '../services/geolocation'
 import { getDistance } from 'geolib'
 import 'leaflet/dist/leaflet.css'
@@ -30,18 +27,18 @@ import axios from 'axios';
 
 // Correction pour l'icône de marker par défaut de Leaflet
 const defaultIcon = new Icon({
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
+  iconUrl: '/marker-icon.png',
+  shadowUrl: '/marker-shadow.png',
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
   shadowSize: [41, 41]
 });
 
-const userLocationMarker = new Icon({
-  iconUrl: userLocationIcon,
+const userIcon = new Icon({
+  iconUrl: '/user-location.png',
   iconSize: [32, 32],
-  iconAnchor: [16, 16],
+  iconAnchor: [16, 16]
 });
 
 // Style du cercle de rayon
@@ -200,7 +197,7 @@ function LocationMarker() {
   }, [map])
 
   return position === null ? null : (
-    <Marker position={position} icon={userLocationMarker}>
+    <Marker position={position} icon={userIcon}>
       <Popup className="custom-popup">
         <div className="text-center">
           <span className="font-medium">Votre position</span>

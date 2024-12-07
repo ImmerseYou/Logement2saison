@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { MapPinIcon, HomeIcon, ShieldCheckIcon, UserGroupIcon, CurrencyEuroIcon } from '@heroicons/react/24/outline'
 import { ChevronDownIcon } from '@heroicons/react/24/solid'
+import { useRef } from 'react'
 
 const features = [
   {
@@ -21,6 +22,12 @@ const features = [
 ]
 
 export default function Home() {
+  const featuresSectionRef = useRef(null)
+
+  const scrollToFeatures = () => {
+    featuresSectionRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
   return (
     <div className="min-h-screen">
       {/* Video Hero section */}
@@ -37,7 +44,7 @@ export default function Home() {
             preload="metadata"
             loading="eager"
           >
-            <source src="/Vidéo/Ski Resort 4K Video.mp4" type="video/mp4" />
+            <source src="/videos/ski-resort.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
           {/* Overlay */}
@@ -57,16 +64,16 @@ export default function Home() {
           <div className="mt-10 flex flex-col sm:flex-row gap-4">
             <Link
               to="/search"
-              className="px-8 py-3 border border-transparent text-base font-medium rounded-md text-primary-700 bg-white hover:bg-gray-100 transition-colors duration-300"
+              className="px-8 py-3 border border-transparent text-base font-medium rounded-md text-primary-700 bg-white hover:bg-white/30 hover:text-white hover:border-white transition-all duration-300"
             >
               Rechercher
             </Link>
-            <Link
-              to="/how-it-works"
-              className="px-8 py-3 border border-white text-base font-medium rounded-md text-white hover:bg-white hover:text-primary-700 transition-colors duration-300"
+            <button
+              onClick={scrollToFeatures}
+              className="px-8 py-3 border border-white text-base font-medium rounded-md text-white hover:bg-white/30 transition-all duration-300"
             >
               Comment ça marche
-            </Link>
+            </button>
           </div>
 
           {/* Scroll indicator */}
@@ -77,7 +84,7 @@ export default function Home() {
       </div>
 
       {/* Feature section */}
-      <div className="py-16 bg-gray-50 overflow-hidden lg:py-24">
+      <div ref={featuresSectionRef} className="py-16 bg-gray-50 overflow-hidden lg:py-24">
         <div className="relative max-w-xl mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-7xl">
           <div className="relative">
             <h2 className="text-center text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
@@ -117,7 +124,7 @@ export default function Home() {
             <div className="mt-10 -mx-4 relative lg:mt-0">
               <img
                 className="relative mx-auto rounded-lg shadow-lg"
-                src="/logos/Logementpieces.png"
+                src="/images/Logementpieces.png"
                 alt="Intérieur d'un logement"
               />
             </div>
