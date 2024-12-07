@@ -27,7 +27,7 @@ function Navbar() {
                 {/* Logo - Left Section */}
                 <div className="flex-shrink-0">
                   <Link to="/" className={`text-2xl font-bold ${isHomePage ? 'text-white' : 'text-primary-600'}`}>
-                    SeasonStay
+                    Logement2saison
                   </Link>
                 </div>
 

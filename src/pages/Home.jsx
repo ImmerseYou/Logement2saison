@@ -51,7 +51,7 @@ export default function Home() {
             <span className="block mt-2">pour la saison</span>
           </h1>
           <p className="mt-6 max-w-lg mx-auto text-center text-xl text-gray-200 sm:max-w-3xl">
-            SeasonStay vous aide à trouver le logement idéal pour votre travail saisonnier.
+            Logement2saison vous aide à trouver le logement idéal pour votre travail saisonnier.
             Des solutions adaptées à vos besoins, validées par nos experts.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row gap-4">
@@ -133,7 +133,7 @@ export default function Home() {
               Notre Impact
             </h2>
             <p className="mt-4 max-w-3xl mx-auto text-xl text-gray-500">
-              SeasonStay s'engage pour un impact positif sur la société, l'économie locale et l'environnement
+              Logement2saison s'engage pour un impact positif sur la société, l'économie locale et l'environnement
             </p>
           </div>
 

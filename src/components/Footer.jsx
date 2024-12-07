@@ -75,7 +75,7 @@ function Footer() {
           ))}
         </div>
         <p className="mt-8 text-center text-base text-gray-400">
-          &copy; {new Date().getFullYear()} SeasonStay. Tous droits réservés.
+          &copy; {new Date().getFullYear()} Logement2saison. Tous droits réservés.
         </p>
       </div>
     </footer>
