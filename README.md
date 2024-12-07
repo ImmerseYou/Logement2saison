@@ -1,23 +1,24 @@
-# SeasonStay 🏠
+# SeasonStay 
 
 Une plateforme moderne pour connecter les travailleurs saisonniers avec des logements adaptés à leurs besoins.
 
-## 🌟 Fonctionnalités
+## Fonctionnalités
 
 - Recherche de logements par localisation
 - Filtres avancés (prix, type de logement, etc.)
 - Système de réservation en ligne
 - Chat en direct avec le support
 - Labels de qualité et certification des logements
+- Nouvelle fonctionnalité de test
 
-## 🚀 Technologies utilisées
+## Technologies utilisées
 
 - React.js
 - Tailwind CSS
 - Supabase
 - Vite
 
-## 💻 Installation
+## Installation
 
 1. Clonez le repository
 ```bash
@@ -41,6 +42,6 @@ VITE_SUPABASE_ANON_KEY=votre_cle_anon_supabase
 npm run dev
 ```
 
-## 📝 License
+## License
 
 Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
