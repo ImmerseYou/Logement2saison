@@ -21,7 +21,7 @@ Une plateforme moderne pour connecter les travailleurs saisonniers avec des loge
 
 1. Clonez le repository
 ```bash
-git clone https://github.com/VotreNom/SeasonStay.git
+git clone https://github.com/ImmerseYou/Logement2saison.git
 ```
 
 2. Installez les dépendances
