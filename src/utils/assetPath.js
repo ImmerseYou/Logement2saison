@@ -8,6 +8,6 @@ export function getAssetPath(path) {
   }
 
   // En production, utiliser un chemin absolu ou basé sur le sous-répertoire
-  const basePath = '/<Logement2saison>'; // Replace <repository-name> with your actual repository name
+  const basePath = '/Logement2saison'; // Use the actual repository name
   return `${basePath}/${cleanPath}`;
 }
