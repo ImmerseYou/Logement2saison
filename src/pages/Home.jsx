@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { MapPinIcon, HomeIcon, ShieldCheckIcon, UserGroupIcon, CurrencyEuroIcon } from '@heroicons/react/24/outline'
 import { ChevronDownIcon } from '@heroicons/react/24/solid'
 import { useRef } from 'react'
+import { getAssetPath } from '../utils/assetPath'
 
 const features = [
   {
@@ -44,7 +45,7 @@ export default function Home() {
             preload="metadata"
             loading="eager"
           >
-            <source src="/videos/ski-resort.mp4" type="video/mp4" />
+            <source src={getAssetPath('/videos/ski-resort.mp4')} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
           {/* Overlay */}
@@ -124,7 +125,7 @@ export default function Home() {
             <div className="mt-10 -mx-4 relative lg:mt-0">
               <img
                 className="relative mx-auto rounded-lg shadow-lg"
-                src="/images/Logementpieces.png"
+                src={getAssetPath('/images/Logementpieces.png')}
                 alt="Intérieur d'un logement"
               />
             </div>
