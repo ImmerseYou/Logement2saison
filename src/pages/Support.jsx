@@ -1,13 +1,37 @@
 import { useChat } from '../contexts/ChatContext';
 import { ChatSupport } from '../components/ChatSupport/ChatSupport';
+import { useLocation } from 'react-router-dom';
 
 function Support() {
   const { openChat } = useChat();
+  const location = useLocation();
+  const basePath = location.pathname.startsWith('/SeasonStay') ? '/SeasonStay' : '';
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Hero Section */}
+      <div className="relative h-[300px]">
+        <img
+          className="absolute inset-0 w-full h-full object-cover"
+          src={`${basePath}/images/Support-image.jpg`}
+          alt="Bannière support"
+        />
+        {/* Overlay gradient */}
+        <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-4xl font-extrabold text-white sm:text-5xl sm:tracking-tight lg:text-6xl drop-shadow-lg">
+              Support & Assistance
+            </h1>
+            <p className="max-w-xl mt-5 mx-auto text-xl text-white drop-shadow-lg">
+              Notre équipe est là pour vous accompagner tout au long de votre expérience sur Logement2saison
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Service Client Section */}
       <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
-        {/* Service Client Section */}
         <div className="lg:text-center mb-16">
           <h2 className="text-3xl font-extrabold text-gray-900">Service Client</h2>
           <p className="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">

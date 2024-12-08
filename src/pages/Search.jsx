@@ -27,8 +27,8 @@ import axios from 'axios';
 
 // Correction pour l'icône de marker par défaut de Leaflet
 const defaultIcon = new Icon({
-  iconUrl: '/marker-icon.png',
-  shadowUrl: '/marker-shadow.png',
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
@@ -36,18 +36,29 @@ const defaultIcon = new Icon({
 });
 
 const userIcon = new Icon({
-  iconUrl: '/user-location.png',
-  iconSize: [32, 32],
-  iconAnchor: [16, 16]
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
 });
 
 // Style du cercle de rayon
 const circleStyle = {
-  color: '#3B82F6',
+  color: '#4F46E5', // Couleur Indigo plus moderne
   weight: 2,
-  fillColor: '#3B82F6',
-  fillOpacity: 0.1,
+  fillColor: '#4F46E5',
+  fillOpacity: 0.08,
   dashArray: '5, 5',
+};
+
+// Style personnalisé pour les popups
+const customPopupStyle = {
+  className: 'custom-popup',
+  closeButton: true,
+  autoPan: true,
+  maxWidth: 300,
 };
 
 // Données d'exemple de propriétés
@@ -766,11 +777,11 @@ function Search() {
                   </span>
                 </div>
                 <div className="mt-1 flex items-center text-gray-600 text-sm">
-                  <BanknotesIcon className="h-4 w-4 mr-1 flex-shrink-0" />
+                  <BanknotesIcon className="h-4 w-4 mr-1" />
                   <span className="truncate">{property.price}€/mois</span>
                 </div>
                 <div className="mt-1 flex items-center text-gray-600 text-sm">
-                  <HomeIcon className="h-4 w-4 mr-1 flex-shrink-0" />
+                  <HomeIcon className="h-4 w-4 mr-1" />
                   <span className="truncate">{property.surface}m²</span>
                 </div>
               </div>
@@ -796,24 +807,19 @@ function Search() {
 
         {/* Colonne de droite - Carte */}
         <div className="w-2/5 p-4">
-          <div className="h-full rounded-lg overflow-hidden shadow-lg relative z-0">  {/* Changé le z-index à 0 */}
-            <MapContainer
-              key={mapKey}
+          <div className="h-full rounded-lg overflow-hidden shadow-lg relative">
+            <MapContainer 
               center={mapCenter}
               zoom={mapZoom}
-              style={{ height: '100%', width: '100%' }}
-              zoomControl={false}
+              className="h-[calc(100vh-2rem)] w-full rounded-lg shadow-lg"
+              style={{ minHeight: "600px" }}
+              zoomControl={true}
+              zoomControlPosition="topleft"
             >
               <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
               />
-              <div className="leaflet-top leaflet-right">
-                <div className="leaflet-control-zoom leaflet-bar leaflet-control">
-                  <a className="leaflet-control-zoom-in" href="#" title="Zoom in" role="button" aria-label="Zoom in">+</a>
-                  <a className="leaflet-control-zoom-out" href="#" title="Zoom out" role="button" aria-label="Zoom out">−</a>
-                </div>
-              </div>
               {userLocation && (
                 <>
                   <LocationMarker />

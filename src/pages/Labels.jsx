@@ -22,24 +22,22 @@ function Labels() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div className="relative">
+      <div className="relative h-[300px]">
         <img
           className="absolute inset-0 w-full h-full object-cover"
-          src="/Vidéo/partenaire2.jpg"
+          src="/images/Labels-Garden.jpg"
           alt="Bannière labels"
         />
         {/* Overlay gradient plus sombre */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/30"></div>
-        <div className="relative">
-          <div className="max-w-7xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8">
-            <div className="text-center">
-              <h1 className="text-4xl font-extrabold text-white sm:text-5xl sm:tracking-tight lg:text-6xl drop-shadow-lg">
-                Labels et Certifications
-              </h1>
-              <p className="max-w-xl mt-5 mx-auto text-xl text-white drop-shadow-lg">
-                Découvrez nos labels qui garantissent qualité, confort et engagement solidaire pour le logement saisonnier.
-              </p>
-            </div>
+        <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-4xl font-extrabold text-white sm:text-5xl sm:tracking-tight lg:text-6xl drop-shadow-lg">
+              Labels et Certifications
+            </h1>
+            <p className="max-w-xl mt-5 mx-auto text-xl text-white drop-shadow-lg">
+              Découvrez nos labels qui garantissent qualité, confort et engagement solidaire pour le logement saisonnier.
+            </p>
           </div>
         </div>
       </div>
