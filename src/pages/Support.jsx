@@ -1,6 +1,7 @@
 import { useChat } from '../contexts/ChatContext';
 import { ChatSupport } from '../components/ChatSupport/ChatSupport';
 import { useLocation } from 'react-router-dom';
+import { getAssetPath } from '../utils/assetPath';
 
 function Support() {
   const { openChat } = useChat();
@@ -13,7 +14,7 @@ function Support() {
       <div className="relative h-[300px]">
         <img
           className="absolute inset-0 w-full h-full object-cover"
-          src={`${basePath}/images/Support-image.jpg`}
+          src={getAssetPath('images/Support-image.jpg')}
           alt="Bannière support"
         />
         {/* Overlay gradient */}

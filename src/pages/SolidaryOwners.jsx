@@ -1,4 +1,5 @@
 import { BuildingOffice2Icon, HomeModernIcon, WrenchScrewdriverIcon, UserGroupIcon } from '@heroicons/react/24/outline'
+import { getAssetPath } from '../utils/assetPath';
 
 const partners = {
   institutional: [
@@ -41,7 +42,7 @@ function SolidaryOwners() {
       <div className="relative h-[300px]">
         <img
           className="absolute inset-0 w-full h-full object-cover"
-          src="/images/Partenaire-image.png"
+          src={getAssetPath('images/Partenaire-image.png')}
           alt="Bannière partenaires"
         />
         {/* Overlay gradient plus sombre */}
@@ -78,7 +79,7 @@ function SolidaryOwners() {
                   <div className="flex items-center">
                     <div className="w-40 h-16 flex items-center justify-center bg-gray-50 rounded-lg">
                       <img 
-                        src={partner.logo} 
+                        src={getAssetPath(partner.logo)} 
                         alt={partner.name} 
                         className="max-h-full w-auto object-contain"
                       />

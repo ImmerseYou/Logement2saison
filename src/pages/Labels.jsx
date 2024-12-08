@@ -1,5 +1,6 @@
 import { HomeIcon, HeartIcon, CheckBadgeIcon, StarIcon } from '@heroicons/react/24/outline'
 import { Link } from 'react-router-dom'
+import { getAssetPath } from '../utils/assetPath';
 
 const labelFeatures = {
   solidaire: [
@@ -25,7 +26,7 @@ function Labels() {
       <div className="relative h-[300px]">
         <img
           className="absolute inset-0 w-full h-full object-cover"
-          src="/images/Labels-Garden.jpg"
+          src={getAssetPath('images/Labels-Garden.jpg')}
           alt="Bannière labels"
         />
         {/* Overlay gradient plus sombre */}
@@ -176,7 +177,7 @@ function Labels() {
             <div className="bg-white rounded-lg p-8 flex flex-col items-center">
               <div className="bg-white w-full flex justify-center items-center">
                 <img
-                  src="/logos/action-logement.svg"
+                  src={getAssetPath('logos/action-logement.svg')}
                   alt="Action Logement"
                   className="h-24 object-contain mb-6"
                 />
@@ -191,7 +192,7 @@ function Labels() {
             <div className="bg-white rounded-lg p-8 flex flex-col items-center">
               <div className="bg-white w-full flex justify-center items-center">
                 <img
-                  src="/logos/cci-france.svg"
+                  src={getAssetPath('logos/cci-france.svg')}
                   alt="CCI France"
                   className="h-24 object-contain mb-6"
                 />
