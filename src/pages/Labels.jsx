@@ -166,44 +166,6 @@ function Labels() {
             </div>
           </div>
         </div>
-
-        {/* Partenaires Institutionnels Section */}
-        <div className="mt-24">
-          <div className="lg:text-center mb-16">
-            <h2 className="text-3xl font-extrabold text-gray-900">Partenaires Institutionnels</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            {/* Action Logement */}
-            <div className="bg-white rounded-lg p-8 flex flex-col items-center">
-              <div className="bg-white w-full flex justify-center items-center">
-                <img
-                  src={getAssetPath('logos/action-logement.svg')}
-                  alt="Action Logement"
-                  className="h-24 object-contain mb-6"
-                />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Action Logement</h3>
-              <p className="text-gray-600 text-center leading-relaxed">
-                Acteur majeur du logement social en France, Action Logement s'engage à nos côtés pour faciliter l'accès au logement des travailleurs saisonniers.
-              </p>
-            </div>
-
-            {/* CCI France */}
-            <div className="bg-white rounded-lg p-8 flex flex-col items-center">
-              <div className="bg-white w-full flex justify-center items-center">
-                <img
-                  src={getAssetPath('logos/cci-france.svg')}
-                  alt="CCI France"
-                  className="h-24 object-contain mb-6"
-                />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">CCI France</h3>
-              <p className="text-gray-600 text-center leading-relaxed">
-                La Chambre de Commerce et d'Industrie soutient notre initiative en facilitant les connexions avec les entreprises locales.
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   )

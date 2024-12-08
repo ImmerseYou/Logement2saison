@@ -243,43 +243,11 @@ export default function Home() {
 
           <div className="mt-12 text-center">
             <Link
-              to="/about"
+              to="/labels"
               className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700"
             >
               En savoir plus sur notre impact
             </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Logos des partenaires */}
-      <div className="mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            {/* Action Logement */}
-            <div className="col-span-1 flex justify-center md:col-span-1">
-              <img
-                className="h-12"
-                src="/logos/Action-logement.png"
-                alt="Action Logement"
-              />
-            </div>
-            {/* CCI France */}
-            <div className="col-span-1 flex justify-center md:col-span-1">
-              <img
-                className="h-12"
-                src="/logos/CCI-France.avif"
-                alt="CCI France"
-              />
-            </div>
-            {/* Partenaire */}
-            <div className="col-span-1 flex justify-center md:col-span-1">
-              <img
-                className="h-12"
-                src="/images/Partenaire-image.png"
-                alt="Partenaire"
-              />
-            </div>
           </div>
         </div>
       </div>
