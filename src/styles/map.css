@@ -33,18 +33,27 @@
 
 /* Style pour les popups */
 .leaflet-popup-content-wrapper {
-  border-radius: 12px !important;
+  border-radius: 0.5rem !important;
   padding: 0 !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
 }
 
 .leaflet-popup-content {
   margin: 0 !important;
   min-width: 200px !important;
+  padding: 0 !important;
 }
 
 .leaflet-popup-tip {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+.leaflet-popup-content p {
+  margin: 0 !important;
+}
+
+.leaflet-popup-close-button {
+  padding: 8px !important;
 }
 
 /* Style pour le marqueur de position utilisateur */
@@ -52,4 +61,20 @@
   border: 3px solid white;
   border-radius: 50%;
   box-shadow: 0 0 0 2px #3B82F6;
+}
+
+.leaflet-container {
+  z-index: 0 !important;
+}
+
+.leaflet-control-container {
+  z-index: 1;
+}
+
+.custom-popup {
+  z-index: 1000;
+}
+
+.leaflet-popup {
+  z-index: 1000;
 }

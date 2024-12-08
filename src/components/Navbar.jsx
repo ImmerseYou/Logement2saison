@@ -6,7 +6,7 @@ import LoginModal from './LoginModal'
 
 const navigation = [
   { name: 'Rechercher', href: '/search' },
-  { name: 'Mes réservations', href: '/bookings' },
+  { name: 'Mes réservations', href: '/reservations' },
   { name: 'Propriétaires solidaires', href: '/solidary-owners' },
   { name: 'Labels', href: '/labels' },
   { name: 'Support', href: '/support' },
@@ -33,12 +33,12 @@ function Navbar() {
 
                 {/* Navigation - Center Section */}
                 <div className="hidden sm:block flex-grow">
-                  <div className="flex justify-center space-x-8">
+                  <div className="flex justify-center items-center space-x-4 md:space-x-8">
                     {navigation.map((item) => (
                       <Link
                         key={item.name}
                         to={item.href}
-                        className={`px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
+                        className={`px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 text-center whitespace-nowrap ${
                           location.pathname === item.href
                             ? isHomePage
                               ? 'bg-white/10 text-white'

@@ -2,7 +2,7 @@ import { Routes, Route, useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import Search from './pages/Search'
-import Bookings from './pages/Bookings'
+import Reservations from './pages/Reservations'
 import SolidaryOwners from './pages/SolidaryOwners'
 import Labels from './pages/Labels'
 import Support from './pages/Support'
@@ -24,7 +24,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/search" element={<Search />} />
-          <Route path="/bookings" element={<Bookings />} />
+          <Route path="/reservations" element={<Reservations />} />
           <Route path="/solidary-owners" element={<SolidaryOwners />} />
           <Route path="/labels" element={<Labels />} />
           <Route path="/support" element={<Support />} />

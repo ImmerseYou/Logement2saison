@@ -62,16 +62,16 @@ export default function Home() {
             Logement2saison vous aide à trouver le logement idéal pour votre travail saisonnier.
             Des solutions adaptées à vos besoins, validées par nos experts.
           </p>
-          <div className="mt-10 flex flex-col sm:flex-row gap-4">
+          <div className="mt-10 flex flex-col sm:flex-row gap-4 w-full sm:w-auto items-center">
             <Link
               to="/search"
-              className="px-8 py-3 border border-transparent text-base font-medium rounded-md text-primary-700 bg-white hover:bg-white/30 hover:text-white hover:border-white transition-all duration-300"
+              className="w-full sm:w-auto px-8 py-3 border border-transparent text-base font-medium rounded-md text-primary-700 bg-white hover:bg-white/30 hover:text-white hover:border-white transition-all duration-300 text-center"
             >
               Rechercher
             </Link>
             <button
               onClick={scrollToFeatures}
-              className="px-8 py-3 border border-white text-base font-medium rounded-md text-white hover:bg-white/30 transition-all duration-300"
+              className="w-full sm:w-auto px-8 py-3 border border-white text-base font-medium rounded-md text-white hover:bg-white/30 transition-all duration-300"
             >
               Comment ça marche
             </button>
@@ -248,6 +248,38 @@ export default function Home() {
             >
               En savoir plus sur notre impact
             </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Logos des partenaires */}
+      <div className="mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+            {/* Action Logement */}
+            <div className="col-span-1 flex justify-center md:col-span-1">
+              <img
+                className="h-12"
+                src="/logos/Action-logement.png"
+                alt="Action Logement"
+              />
+            </div>
+            {/* CCI France */}
+            <div className="col-span-1 flex justify-center md:col-span-1">
+              <img
+                className="h-12"
+                src="/logos/CCI-France.avif"
+                alt="CCI France"
+              />
+            </div>
+            {/* Partenaire */}
+            <div className="col-span-1 flex justify-center md:col-span-1">
+              <img
+                className="h-12"
+                src="/images/Partenaire-image.png"
+                alt="Partenaire"
+              />
+            </div>
           </div>
         </div>
       </div>
