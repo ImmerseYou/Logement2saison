@@ -45,3 +45,5 @@ npm run dev
 ## License
 
 Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
+
+Last updated: December 8, 2024
