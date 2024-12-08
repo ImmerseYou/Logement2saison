@@ -44,7 +44,7 @@ export default function Home() {
             preload="metadata"
             loading="eager"
           >
-            <source src="/Logement2saison/videos/ski-resort.mp4" type="video/mp4" />
+            <source src="/videos/ski-resort.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
           {/* Overlay */}
@@ -124,7 +124,7 @@ export default function Home() {
             <div className="mt-10 -mx-4 relative lg:mt-0">
               <img
                 className="relative mx-auto rounded-lg shadow-lg"
-                src="/Logement2saison/images/Logementpieces.png"
+                src="/images/Logementpieces.png"
                 alt="Intérieur d'un logement"
               />
             </div>
