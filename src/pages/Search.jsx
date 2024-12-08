@@ -80,6 +80,96 @@ const SEARCH_RADIUS_OPTIONS = [
   { value: 100, label: '100 km' }
 ];
 
+// Fonction de calcul de distance (formule de Haversine)
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  const R = 6371; // Rayon de la Terre en kilomètres
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const distance = R * c; // Distance en kilomètres
+  return distance;
+};
+
+// Fonction pour filtrer les propriétés
+const filterProperties = (properties, filters) => {
+  if (!properties?.length) return [];
+  
+  const {
+    searchLocation,
+    radius = 20,
+    priceRange,
+    propertyType,
+    dates
+  } = filters;
+
+  return properties.filter(property => {
+    // Vérification de la validité des coordonnées
+    if (!property.latitude || !property.longitude) {
+      console.warn(`Propriété invalide - coordonnées manquantes:`, property.id);
+      return false;
+    }
+
+    // Filtre par localisation et rayon si une recherche est active
+    if (searchLocation?.latitude && searchLocation?.longitude) {
+      const distance = calculateDistance(
+        searchLocation.latitude,
+        searchLocation.longitude,
+        property.latitude,
+        property.longitude
+      );
+      
+      // Si la propriété est hors du rayon de recherche
+      if (distance > radius) return false;
+      
+      // Ajouter la distance à la propriété pour l'affichage
+      property.distance = Math.round(distance * 10) / 10;
+    }
+
+    // Filtre par type de logement
+    if (propertyType && propertyType !== 'all') {
+      if (property.type.toLowerCase() !== propertyType.toLowerCase()) return false;
+    }
+
+    // Filtre par prix
+    if (priceRange?.length === 2) {
+      const [minPrice, maxPrice] = priceRange;
+      if (property.price < minPrice || property.price > maxPrice) return false;
+    }
+
+    // Filtre par disponibilité
+    if (dates?.startDate && dates?.endDate) {
+      const isAvailable = checkPropertyAvailability(property, dates.startDate, dates.endDate);
+      if (!isAvailable) return false;
+    }
+
+    return true;
+  });
+};
+
+// Fonction utilitaire pour vérifier la disponibilité
+const checkPropertyAvailability = (property, startDate, endDate) => {
+  if (!property.unavailableDates?.length) return true;
+  
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  
+  return !property.unavailableDates.some(dateRange => {
+    const rangeStart = new Date(dateRange.start);
+    const rangeEnd = new Date(dateRange.end);
+    return (start <= rangeEnd && end >= rangeStart);
+  });
+};
+
+// Fonction pour calculer le niveau de zoom optimal en fonction du rayon
+const getZoomLevel = (radius) => {
+  // Cette formule donne un zoom approprié en fonction du rayon en km
+  return Math.round(14 - Math.log(radius) / Math.log(2));
+};
+
 function Search() {
   // États pour la recherche et le filtrage
   const [selectedProperty, setSelectedProperty] = useState(null);
@@ -109,75 +199,10 @@ function Search() {
   const [mapCenter, setMapCenter] = useState([45.188529, 5.724524]); // Centre par défaut sur Grenoble
   const [mapZoom, setMapZoom] = useState(12);
 
-  // Référence pour le conteneur des popups
-  const popupRef = useRef(null);
-
-  // Fonction utilitaire pour calculer la distance
-  const getPropertyDistance = useCallback((property) => {
-    if (!searchLocation || !property.latitude || !property.longitude) return null;
-    return getDistance(
-      { latitude: searchLocation.latitude, longitude: searchLocation.longitude },
-      { latitude: property.latitude, longitude: property.longitude }
-    ) / 1000; // Convertir de mètres en kilomètres
-  }, [searchLocation]);
-
-  // Fonction pour filtrer les propriétés
-  const filterProperties = useCallback((properties) => {
-    if (!properties) return [];
-    if (!searchLocation) return properties;
-
-    return properties.filter(property => {
-      // Vérification des coordonnées valides
-      if (!property.latitude || !property.longitude || 
-          isNaN(property.latitude) || isNaN(property.longitude)) {
-        return false;
-      }
-
-      // Calcul de la distance en utilisant geolib
-      const distance = getPropertyDistance(property);
-
-      // Filtrage par distance
-      const withinRadius = searchRadius === Infinity ? true : distance <= searchRadius;
-
-      // Filtrage par prix
-      const withinPriceRange = property.price >= priceRange[0] && 
-                              property.price <= priceRange[1];
-
-      // Filtrage par type de logement
-      const matchesType = selectedAccommodationTypes.length === 0 || 
-                         selectedAccommodationTypes.includes(property.type);
-
-      // Retourne true seulement si tous les critères sont satisfaits
-      return withinRadius && withinPriceRange && matchesType;
-    });
-  }, [searchLocation, searchRadius, priceRange, selectedAccommodationTypes]);
-
-  // Fonction pour calculer le niveau de zoom optimal en fonction du rayon
-  const getZoomLevel = (radius) => {
-    // Cette formule donne un zoom approprié en fonction du rayon en km
-    return Math.round(14 - Math.log(radius) / Math.log(2));
-  };
-
-  // Gestionnaire de clic global
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      // Ferme les popups si le clic est en dehors
-      if (popupRef.current && !popupRef.current.contains(event.target)) {
-        // Ferme la modale de propriété
-        setIsPropertyModalOpen(false);
-        // Ferme la combobox de recherche
-        setIsSearchOpen(false);
-        // Ferme les filtres
-        setIsFiltersVisible(false);
-        setActiveFilter(null);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+  // États pour la géolocalisation
+  const [userLocation, setUserLocation] = useState(null);
+  const [isLoadingLocation, setIsLoadingLocation] = useState(true);
+  const [locationError, setLocationError] = useState(null);
 
   // Gestionnaires d'événements pour les filtres
   const handleFilterClick = (filterName) => {
@@ -251,9 +276,17 @@ function Search() {
 
   // Mise à jour des propriétés filtrées
   useEffect(() => {
-    const filtered = filterProperties(sampleProperties);
+    const filters = {
+      searchLocation,
+      radius: searchRadius,
+      priceRange,
+      propertyType: selectedAccommodationTypes.length > 0 ? selectedAccommodationTypes[0] : 'all',
+      dates: selectedDates
+    };
+
+    const filtered = filterProperties(sampleProperties, filters);
     setFilteredProperties(filtered);
-  }, [searchLocation, searchRadius, priceRange, selectedAccommodationTypes]);
+  }, [searchLocation, searchRadius, priceRange, selectedAccommodationTypes, selectedDates]);
 
   const [isFavoritesVisible, setIsFavoritesVisible] = useState(false);
 
@@ -280,6 +313,60 @@ function Search() {
   const isFavorite = (propertyId) => {
     return favorites.some(fav => fav.id === propertyId);
   };
+
+  // Fonction pour obtenir la position de l'utilisateur
+  const getUserLocation = useCallback(async () => {
+    setIsLoadingLocation(true);
+    setLocationError(null);
+
+    try {
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0
+        });
+      });
+
+      const userPos = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude
+      };
+
+      setUserLocation(userPos);
+      // Si aucune recherche n'est active, utiliser la position de l'utilisateur
+      if (!searchLocation) {
+        setSearchLocation(userPos);
+        // Faire une recherche inverse pour obtenir le nom de la ville
+        try {
+          const response = await fetch(
+            `https://api.opencagedata.com/geocode/v1/json?q=${userPos.latitude}+${userPos.longitude}&key=${import.meta.env.VITE_OPENCAGE_API_KEY}&language=fr`
+          );
+          const data = await response.json();
+          if (data.results && data.results[0]) {
+            const result = data.results[0];
+            setSearchQuery(result.formatted.split(',')[0]); // Prend le premier élément (nom de la ville)
+          }
+        } catch (error) {
+          console.error('Erreur lors de la géocodification inverse:', error);
+        }
+      }
+    } catch (error) {
+      console.error('Erreur de géolocalisation:', error);
+      setLocationError(
+        error.code === 1 
+          ? "Veuillez autoriser l'accès à votre position pour une meilleure expérience."
+          : "Impossible d'obtenir votre position. Veuillez réessayer."
+      );
+    } finally {
+      setIsLoadingLocation(false);
+    }
+  }, [searchLocation]);
+
+  // Obtenir la position de l'utilisateur au chargement
+  useEffect(() => {
+    getUserLocation();
+  }, [getUserLocation]);
 
   return (
     <div className="h-[calc(100vh-4rem)] flex flex-col">
@@ -385,109 +472,205 @@ function Search() {
               >
                 <MagnifyingGlassIcon className="h-6 w-6" />
               </button>
+
+              {locationError && (
+                <p className="mt-2 text-sm text-red-600">{locationError}</p>
+              )}
             </div>
-
             {/* Filtres */}
-            <Transition
-              show={isFiltersVisible}
-              as={Fragment}
-              enter="transition ease-out duration-200"
-              enterFrom="opacity-0 translate-y-1"
-              enterTo="opacity-100 translate-y-0"
-              leave="transition ease-in duration-150"
-              leaveFrom="opacity-100 translate-y-0"
-              leaveTo="opacity-0 translate-y-1"
-            >
-              <Dialog
-                as="div"
-                className="relative z-50"
-                onClose={() => {
-                  setIsFiltersVisible(false);
-                  setActiveFilter(null);
-                }}
-                open={isFiltersVisible}
-              >
-                <div className="fixed inset-0" aria-hidden="true" />
-                <div className="fixed inset-0 overflow-y-auto">
-                  <div className="flex min-h-full items-start justify-center p-4">
-                    <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all">
-                      {/* Contenu des filtres */}
+            <div className={`mt-4 md:block ${isFiltersVisible ? 'block' : 'hidden'}`}>
+              <div className="flex flex-col md:flex-row gap-2">
+                {/* Date */}
+                <div className="relative w-full md:w-auto">
+                  <button
+                    onClick={() => handleFilterClick('date')}
+                    data-filter-button="date"
+                    className="w-full md:w-auto flex items-center justify-between space-x-2 hover:bg-gray-100 rounded-lg px-3 py-2 transition-colors duration-200 border border-gray-300"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <CalendarIcon className="h-5 w-5 text-gray-500" />
+                      <span className="text-sm text-gray-700">
+                        {selectedDates.startDate ? format(selectedDates.startDate, 'dd/MM/yyyy', { locale: fr }) : 'Arrivée'} 
+                        {' - '}
+                        {selectedDates.endDate ? format(selectedDates.endDate, 'dd/MM/yyyy', { locale: fr }) : 'Départ'}
+                      </span>
+                    </div>
+                  </button>
+
+                  {activeFilter === 'date' && (
+                    <div data-filter-content="date" className="absolute left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-50">
+                      <DateRange
+                        ranges={[selectedDates]}
+                        onChange={handleDateChange}
+                        minDate={new Date()}
+                        rangeColors={['#3B82F6']}
+                        monthDisplayFormat="MMMM yyyy"
+                        locale={fr}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Rayon */}
+                <div className="relative w-full md:w-auto">
+                  <button
+                    onClick={() => handleFilterClick('radius')}
+                    data-filter-button="radius"
+                    className="w-full md:w-auto flex items-center justify-between space-x-2 hover:bg-gray-100 rounded-lg px-3 py-2 transition-colors duration-200 border border-gray-300"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <AdjustmentsHorizontalIcon className="h-5 w-5 text-gray-500" />
+                      <span className="text-sm text-gray-700">{searchRadius} km</span>
+                    </div>
+                  </button>
+                
+                  {activeFilter === 'radius' && (
+                    <div data-filter-content="radius" className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-50">
                       <div className="space-y-4">
-                        {/* Rayon de recherche */}
-                        <div className="space-y-2">
-                          <label className="block text-sm font-medium text-gray-700">
-                            Rayon de recherche
-                          </label>
-                          <select
-                            value={searchRadius}
-                            onChange={(e) => setSearchRadius(Number(e.target.value))}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                          >
-                            {SEARCH_RADIUS_OPTIONS.map((option) => (
-                              <option key={option.value} value={option.value}>
-                                {option.label}
-                              </option>
-                            ))}
-                          </select>
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium text-gray-700">Rayon de recherche</span>
+                          <span className="text-sm text-gray-500">{searchRadius} km</span>
                         </div>
-
-                        {/* Prix */}
-                        <div className="space-y-2">
-                          <label className="block text-sm font-medium text-gray-700">
-                            Prix
-                          </label>
-                          <div className="flex items-center space-x-4">
-                            <input
-                              type="number"
-                              value={priceRange[0]}
-                              onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
-                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                              placeholder="Min"
-                            />
-                            <span>-</span>
-                            <input
-                              type="number"
-                              value={priceRange[1]}
-                              onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
-                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                              placeholder="Max"
-                            />
-                          </div>
-                        </div>
-
-                        {/* Types de logement */}
-                        <div className="space-y-2">
-                          <label className="block text-sm font-medium text-gray-700">
-                            Types de logement
-                          </label>
-                          <div className="space-y-2">
-                            {['Studio', 'Appartement', 'Maison'].map((type) => (
-                              <label key={type} className="flex items-center">
-                                <input
-                                  type="checkbox"
-                                  checked={selectedAccommodationTypes.includes(type)}
-                                  onChange={(e) => {
-                                    if (e.target.checked) {
-                                      setSelectedAccommodationTypes([...selectedAccommodationTypes, type]);
-                                    } else {
-                                      setSelectedAccommodationTypes(
-                                        selectedAccommodationTypes.filter((t) => t !== type)
-                                      );
-                                    }
-                                  }}
-                                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                />
-                                <span className="ml-2">{type}</span>
-                              </label>
-                            ))}
-                          </div>
+                        <input
+                          type="range"
+                          min="1"
+                          max="30"
+                          step="1"
+                          value={searchRadius}
+                          onChange={(e) => handleRadiusChange(parseInt(e.target.value))}
+                          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                        />
+                        <div className="flex justify-between text-xs text-gray-500">
+                          <span>1 km</span>
+                          <span>15 km</span>
+                          <span>30 km</span>
                         </div>
                       </div>
-                    </Dialog.Panel>
-                  </div>
+                    </div>
+                  )}
                 </div>
-              </Dialog>
-            </Transition>
+
+                {/* Prix */}
+                <div className="relative w-full md:w-auto">
+                  <button
+                    onClick={() => handleFilterClick('price')}
+                    data-filter-button="price"
+                    className="w-full md:w-auto flex items-center justify-between space-x-2 hover:bg-gray-100 rounded-lg px-3 py-2 transition-colors duration-200 border border-gray-300"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <BanknotesIcon className="h-5 w-5 text-gray-500" />
+                      <span className="text-sm text-gray-700">
+                        {priceRange[0]}€ - {priceRange[1]}€
+                      </span>
+                    </div>
+                  </button>
+
+                  {activeFilter === 'price' && (
+                    <div data-filter-content="price" className="absolute left-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-50">
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium text-gray-700">Prix par nuit</span>
+                          <span className="text-sm text-gray-500">
+                            {priceRange[0]}€ - {priceRange[1]}€
+                          </span>
+                        </div>
+                        <div className="relative pt-1">
+                          <input
+                            type="range"
+                            min="0"
+                            max="1000"
+                            value={priceRange[0]}
+                            onChange={(e) => handlePriceRangeChange([parseInt(e.target.value), priceRange[1]])}
+                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                          />
+                          <input
+                            type="range"
+                            min="0"
+                            max="1000"
+                            value={priceRange[1]}
+                            onChange={(e) => handlePriceRangeChange([priceRange[0], parseInt(e.target.value)])}
+                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mt-2"
+                          />
+                        </div>
+                        <div className="flex justify-between text-xs text-gray-500">
+                          <span>0€</span>
+                          <span>500€</span>
+                          <span>1000€</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Type de logement */}
+                <div className="relative w-full md:w-auto">
+                  <button
+                    onClick={() => handleFilterClick('accommodation')}
+                    data-filter-button="accommodation"
+                    className="w-full md:w-auto flex items-center justify-between space-x-2 hover:bg-gray-100 rounded-lg px-3 py-2 transition-colors duration-200 border border-gray-300"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <HomeIcon className="h-5 w-5 text-gray-500" />
+                      <span className="text-sm text-gray-700">
+                        Type de logement
+                      </span>
+                    </div>
+                  </button>
+
+                  {activeFilter === 'accommodation' && (
+                    <div data-filter-content="accommodation" className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-50">
+                      <div className="space-y-2">
+                        {['Studio', 'Appartement', 'Maison'].map((type) => (
+                          <label key={type} className="flex items-center space-x-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={selectedAccommodationTypes.includes(type)}
+                              onChange={() => handleAccommodationTypeChange(type)}
+                              className="form-checkbox h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
+                            />
+                            <span className="text-sm text-gray-700">{type}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Partenaire */}
+                <div className="relative w-full md:w-auto">
+                  <button
+                    onClick={() => handleFilterClick('partner')}
+                    data-filter-button="partner"
+                    className="w-full md:w-auto flex items-center justify-between space-x-2 hover:bg-gray-100 rounded-lg px-3 py-2 transition-colors duration-200 border border-gray-300"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <BuildingOfficeIcon className="h-5 w-5 text-gray-500" />
+                      <span className="text-sm text-gray-700">
+                        Partenaire
+                      </span>
+                    </div>
+                  </button>
+
+                  {activeFilter === 'partner' && (
+                    <div data-filter-content="partner" className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-50">
+                      <div className="space-y-2">
+                        {[{ id: 1, name: 'Airbnb' }, { id: 2, name: 'Booking.com' }, { id: 3, name: 'Abritel' }].map((partner) => (
+                          <label key={partner.id} className="flex items-center space-x-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={false}
+                              onChange={() => console.log('Partenaire sélectionné:', partner.name)}
+                              className="form-checkbox h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
+                            />
+                            <span className="text-sm text-gray-700">{partner.name}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -505,7 +688,6 @@ function Search() {
                 zoomControl={true}
                 zoomControlPosition="topleft"
                 style={{ zIndex: 0 }}
-                closePopupOnClick={true}
               >
                 <TileLayer
                   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -522,10 +704,7 @@ function Search() {
                     position={[searchLocation.latitude, searchLocation.longitude]}
                     icon={cityIcon}
                   >
-                    <Popup 
-                      closeButton={true}
-                      autoPan={true}
-                    >
+                    <Popup>
                       <div className="p-2">
                         <h3 className="font-semibold">{searchQuery}</h3>
                         <p>Centre de recherche</p>
@@ -545,10 +724,7 @@ function Search() {
                       }
                     }}
                   >
-                    <Popup 
-                      closeButton={true}
-                      autoPan={true}
-                    >
+                    <Popup>
                       <div className="p-2">
                         <h3 className="font-semibold">{property.title}</h3>
                         <p>{property.price}€ / nuit</p>
@@ -567,66 +743,72 @@ function Search() {
             {filteredProperties.map((property) => (
               <div
                 key={property.id}
-                className="bg-white rounded-lg shadow-md p-3 hover:shadow-lg transition-shadow cursor-pointer relative"
+                className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => {
+                  setSelectedProperty(property);
+                  setIsPropertyModalOpen(true);
+                }}
               >
-                {/* Bouton favori */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleFavorite(property);
-                  }}
-                  className="absolute top-5 right-5 z-10 p-2 rounded-full bg-white bg-opacity-80 hover:bg-opacity-100 transition-all duration-200 shadow-md"
-                >
-                  {isFavorite(property.id) ? (
-                    <HeartSolid className="h-5 w-5 text-red-500" />
-                  ) : (
-                    <HeartOutline className="h-5 w-5 text-gray-600 hover:text-red-500" />
-                  )}
-                </button>
-
-                <div
-                  className="relative"
-                  onClick={() => openPropertyDetails(property)}
-                >
-                  <div className="aspect-w-16 aspect-h-9 mb-3">
+                {/* Carrousel d'images */}
+                <div className="relative h-48">
+                  {property.images && property.images.length > 0 ? (
                     <img
-                      src={property.imageUrl}
+                      src={property.images[0]}
                       alt={property.title}
-                      className="object-cover rounded-lg w-full h-40"
+                      className="w-full h-full object-cover"
                     />
+                  ) : (
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                      <PhotoIcon className="h-12 w-12 text-gray-400" />
+                    </div>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation(); // Empêche l'ouverture du modal lors du clic sur le cœur
+                      toggleFavorite(property.id);
+                    }}
+                    className="absolute top-2 right-2 p-2 rounded-full bg-white bg-opacity-80 hover:bg-opacity-100 transition-all duration-200"
+                  >
+                    {isFavorite(property.id) ? (
+                      <HeartSolid className="h-6 w-6 text-red-500" />
+                    ) : (
+                      <HeartOutline className="h-6 w-6 text-gray-600 hover:text-red-500" />
+                    )}
+                  </button>
+                </div>
+
+                {/* Informations de la propriété */}
+                <div className="p-4">
+                  <div className="mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900 truncate">
+                      {property.title}
+                    </h3>
                   </div>
-                  <h3 className="text-base font-semibold truncate">{property.title}</h3>
-                  <div className="mt-2 flex items-center text-gray-600 text-sm">
-                    <MapPinIcon className="h-4 w-4 mr-1 flex-shrink-0" />
-                    <span className="truncate">
+
+                  <div className="flex items-center text-sm text-gray-500 mb-2">
+                    <MapPinIcon className="h-4 w-4 mr-1" />
+                    <span>
                       {searchLocation ? (
-                        <>
-                          {(() => {
-                            const distance = getPropertyDistance(property);
-                            return distance !== null ? (
-                              <>
-                                <span className={distance > searchRadius ? 'text-red-500' : 'text-green-600'}>
-                                  {distance.toFixed(1)} km
-                                </span>
-                                {distance > searchRadius && 
-                                  <span className="text-xs text-red-500 ml-1">(Hors rayon)</span>
-                                }
-                              </>
-                            ) : 'Distance non disponible'
-                          })()}
-                        </>
+                        <span className={property.distance > searchRadius ? 'text-red-500' : 'text-green-600'}>
+                          {property.distance} km
+                          {property.distance > searchRadius && 
+                            <span className="text-xs text-red-500 ml-1">(Hors rayon)</span>
+                          }
+                        </span>
                       ) : (
                         'Calcul en cours...'
                       )}
                     </span>
                   </div>
-                  <div className="mt-1 flex items-center text-gray-600 text-sm">
-                    <BanknotesIcon className="h-4 w-4 mr-1" />
-                    <span className="truncate">{property.price}€/mois</span>
-                  </div>
-                  <div className="mt-1 flex items-center text-gray-600 text-sm">
-                    <HomeIcon className="h-4 w-4 mr-1" />
-                    <span className="truncate">{property.surface}m²</span>
+
+                  <div className="flex items-center justify-between mt-4">
+                    <div className="flex items-center">
+                      <HomeIcon className="h-5 w-5 text-gray-400 mr-2" />
+                      <span className="text-sm text-gray-600">{property.surface}m²</span>
+                    </div>
+                    <div className="text-lg font-bold text-blue-600">
+                      {property.price}€<span className="text-sm font-normal">/mois</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -660,7 +842,6 @@ function Search() {
               zoomControl={true}
               zoomControlPosition="topleft"
               style={{ zIndex: 0 }}
-              closePopupOnClick={true}
             >
               <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -677,10 +858,7 @@ function Search() {
                   position={[searchLocation.latitude, searchLocation.longitude]}
                   icon={cityIcon}
                 >
-                  <Popup 
-                    closeButton={true}
-                    autoPan={true}
-                  >
+                  <Popup>
                     <div className="p-2">
                       <h3 className="font-semibold">{searchQuery}</h3>
                       <p>Centre de recherche</p>
@@ -700,10 +878,7 @@ function Search() {
                     }
                   }}
                 >
-                  <Popup 
-                    closeButton={true}
-                    autoPan={true}
-                  >
+                  <Popup>
                     <div className="p-2">
                       <h3 className="font-semibold">{property.title}</h3>
                       <p>{property.price}€ / nuit</p>
@@ -746,7 +921,7 @@ function Search() {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full h-full sm:h-auto sm:max-w-4xl transform overflow-hidden bg-white sm:rounded-2xl p-6 shadow-xl transition-all">
+                <Dialog.Panel className="w-full h-full sm:h-auto sm:max-w-4xl transform overflow-hidden bg-white sm:rounded-2xl p-6 text-left align-middle shadow-xl transition-all">
                   {selectedProperty && (
                     <>
                       <div className="relative flex justify-between items-start mb-4">
@@ -781,11 +956,17 @@ function Search() {
 
                       <div className="mt-4">
                         <div className="aspect-w-16 aspect-h-9 mb-6">
-                          <img
-                            src={selectedProperty.imageUrl}
-                            alt={selectedProperty.title}
-                            className="object-cover rounded-xl w-full h-[400px]"
-                          />
+                          {selectedProperty.images && selectedProperty.images.length > 0 ? (
+                            <img
+                              src={selectedProperty.images[0]}
+                              alt={selectedProperty.title}
+                              className="object-cover rounded-xl w-full h-[400px]"
+                            />
+                          ) : (
+                            <div className="w-full h-[400px] bg-gray-200 flex items-center justify-center rounded-xl">
+                              <PhotoIcon className="h-12 w-12 text-gray-400" />
+                            </div>
+                          )}
                         </div>
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6">
@@ -795,7 +976,7 @@ function Search() {
                               <p className="text-sm text-gray-500">Distance</p>
                               <p className="text-gray-900 font-medium">
                                 {searchLocation ? (
-                                  `${getPropertyDistance(selectedProperty).toFixed(1)} km`
+                                  `${calculateDistance(searchLocation.latitude, searchLocation.longitude, selectedProperty.latitude, selectedProperty.longitude).toFixed(1)} km`
                                 ) : (
                                   'Calcul en cours...'
                                 )}

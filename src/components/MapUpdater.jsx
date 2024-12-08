@@ -110,19 +110,6 @@ const MapUpdater = ({ searchLocation, searchRadius, properties }) => {
     }
   }, [map, searchLocation, searchRadius, properties]);
 
-  useEffect(() => {
-    // Ajouter un gestionnaire de clic sur la carte pour fermer les popups
-    const closePopupsOnClick = () => {
-      map.closePopup();
-    };
-
-    map.on('click', closePopupsOnClick);
-
-    return () => {
-      map.off('click', closePopupsOnClick);
-    };
-  }, [map]);
-
   return null;
 };
 

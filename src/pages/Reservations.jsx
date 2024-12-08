@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
 import { HeartIcon as HeartOutline } from '@heroicons/react/24/outline';
 import { MapPinIcon, BanknotesIcon, HomeIcon } from '@heroicons/react/20/solid';
+import { PhotoIcon } from '@heroicons/react/20/solid';
 
 const Reservations = () => {
   const [favorites, setFavorites] = useState([]);
@@ -87,11 +88,17 @@ const Reservations = () => {
                   className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
                 >
                   <div className="relative">
-                    <img
-                      src={property.imageUrl}
-                      alt={property.title}
-                      className="w-full h-48 object-cover"
-                    />
+                    {property.images && property.images.length > 0 ? (
+                      <img
+                        src={property.images[0]}
+                        alt={property.title}
+                        className="w-full h-48 object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+                        <PhotoIcon className="h-12 w-12 text-gray-400" />
+                      </div>
+                    )}
                     <button
                       onClick={() => removeFavorite(property.id)}
                       className="absolute top-4 right-4 p-2 rounded-full bg-white bg-opacity-90 hover:bg-opacity-100 transition-all duration-200 shadow-md"
