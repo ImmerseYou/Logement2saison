@@ -25,7 +25,7 @@ function Support() {
               Support & Assistance
             </h1>
             <p className="max-w-xl mt-5 mx-auto text-xl text-white drop-shadow-lg">
-              Notre équipe est là pour vous accompagner tout au long de votre expérience sur Logement2saison
+              Notre équipe est là pour vous accompagner tout au long de votre expérience sur Logements 2 Saisons
             </p>
           </div>
         </div>
@@ -59,7 +59,7 @@ function Support() {
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-4">Support Email</h3>
             <p className="text-gray-600 leading-relaxed mb-4">Questions générales et assistance</p>
-            <p className="font-medium text-primary-600">support@seasonstay.fr</p>
+            <p className="font-medium text-primary-600">support@Logements2Saisons.fr</p>
             <p className="text-sm text-gray-500">Réponse sous 24h</p>
           </div>
 

@@ -64,7 +64,7 @@ function SolidaryOwners() {
         <div className="lg:text-center mb-16">
           <h2 className="text-3xl font-extrabold text-gray-900">Notre écosystème de partenaires</h2>
           <p className="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
-            SeasonStay s'appuie sur un réseau de partenaires de confiance pour offrir une solution complète 
+            Logements 2 Saisons s'appuie sur un réseau de partenaires de confiance pour offrir une solution complète 
             aux propriétaires et aux travailleurs saisonniers.
           </p>
         </div>
@@ -173,7 +173,7 @@ function SolidaryOwners() {
             <div className="lg:flex lg:items-center lg:justify-between">
               <div className="max-w-xl">
                 <h3 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
-                  Devenez partenaire SeasonStay
+                  Devenez partenaire Logements 2 Saisons
                 </h3>
                 <p className="mt-3 text-lg text-primary-100">
                   Rejoignez notre réseau de partenaires et participez à la transformation du logement saisonnier.
@@ -182,7 +182,7 @@ function SolidaryOwners() {
               <div className="mt-8 lg:mt-0 lg:flex-shrink-0">
                 <div className="inline-flex rounded-md shadow">
                   <a
-                    href="mailto:partenaires@seasonstay.fr"
+                    href="mailto:partenaires@Logements2Saisons.fr"
                     className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-primary-700 bg-white hover:bg-primary-50"
                   >
                     Contactez-nous
